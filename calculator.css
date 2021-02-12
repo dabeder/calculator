@@ -1,0 +1,69 @@
+body {
+    margin: 10px;
+    background-color: aliceblue;
+}
+
+.container {
+    display: grid;
+
+    justify-items: center;
+}
+
+.calculator {
+    width: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 50px);
+    grid-template-rows: repeat(6, 50px);
+    gap: 5px;
+    grid-template-areas: ". . . ."
+                        "clear clear clear divide"
+                        ". . . multiply"
+                        ". . . subtract"
+                        ". . . add"
+                        ". . . equals";
+}
+
+.button {
+    background-color: black;
+    color: aliceblue;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.display {
+    grid-column: 1 / -1;
+    display: grid;
+    border: 1px solid black;
+    align-content: center;
+    justify-content: end;
+    padding-right: 5px;
+}
+
+.button-divide {
+    grid-area: divide;
+}
+
+.button-multiply {
+    grid-area: multiply;
+}
+
+.button-subtract {
+    grid-area: subtract;
+}
+
+.button-add {
+    grid-area: add;
+}
+
+.button-equals {
+    grid-area: equals;
+}
+
+.button-clear {
+    grid-area: clear;
+}
+
+.button0 {
+    grid-column: span 2;
+}
