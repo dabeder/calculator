@@ -1,17 +1,19 @@
 body {
-    margin: 10px;
     background-color: aliceblue;
+    font-size: 16pt;
+    font-family:'Courier New', Courier, monospace;
 }
 
 .container {
     display: grid;
-
+    grid-template-rows: minmax(0px, 15vh) auto;
     justify-items: center;
 }
 
 .calculator {
     width: auto;
     display: grid;
+    grid-row-start: 2;
     grid-template-columns: repeat(4, 50px);
     grid-template-rows: repeat(6, 50px);
     gap: 5px;
@@ -29,6 +31,15 @@ body {
     display: grid;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+}
+
+.button:hover {
+    box-shadow: 0 0 0 1px #333;
+}
+
+.button:active {
+    transform: scale(.98);
 }
 
 .display {
@@ -37,9 +48,12 @@ body {
     border: 1px solid black;
     align-content: center;
     justify-content: end;
-    padding-right: 5px;
+    padding-right: 10px;
 }
 
+.function {
+    font-family: sans-serif;
+}
 .button-divide {
     grid-area: divide;
 }
