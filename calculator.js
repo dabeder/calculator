@@ -6,20 +6,24 @@ const clearButton = document.querySelector('.button-clear');
 const equalsButton = document.querySelector('.button-equals');
 
 let input1 = 0;
-let input2 = '';
+let input2 = 0;
 let operator = '';
 let prevButtonType = "";
 
 const clear = () => {
     input1 = 0;
-    input2 = '';
+    input2 = 0;
     operator = '';
     prevButtonType = "";
-    calculatorDisplay.innerText = "0";
     console.log(input1);
 }
 
+const updateDisplay = (string) => {
+    calculatorDisplay.innerText = string;
+}
+
 clear();
+updateDisplay("0");
 
 const add = (number1, number2) => {
     return number1 + number2;
@@ -57,22 +61,29 @@ const operate = (number1, operator, number2) => {
             result = add(number1, number2);
     }
     if ((result==="ERROR") || Number.isNaN(result)) {
-        calculatorDisplay.innerText = "ERROR";
-        input1 = 0;
-        input2 = '';
-        operator = '';
-        prevButtonType = '';
+        clear();
+        updateDisplay("ERROR");
     }
     else {
         result = Math.round(parseFloat(result));
-        calculatorDisplay.innerText = result;
-        input1 = calculatorDisplay.innerText;
-        input2 = '';
-        operator = '';
+        if (result.toString().length > 15) {
+            updateDisplay("OVERFLOW");
+            clear();
+        }
+        else {
+            updateDisplay(result);
+            input1 = result;
+            input2 = '';
+            operator = '';
+        }
+
     }
 }
 
-clearButton.addEventListener('click', clear);
+clearButton.addEventListener('click', () => {
+    clear();
+    updateDisplay("0");
+});
 
 equalsButton.addEventListener('click', () => {
     operate(input1, operator, input2);
@@ -92,11 +103,15 @@ digitButtons.forEach(button => {
             console.log('out of space');
             return;
         }
-        else {
-            calculatorDisplay.innerText = temp + button.innerText;
-            input2 = parseInt(calculatorDisplay.innerText);
+        else { // still fits on screen
+            if (button.getAttribute('data-button')==="decimal") {
+                console.log('point'); //TODO
+                return;
+            }
+            input2 = parseInt(temp + button.innerText);
+            updateDisplay(input2);
             prevButtonType = "numberKey";
-            console.log(`Inputs are ${input1} and ${input2}`);
+            console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
         }
     });
 });
@@ -111,10 +126,10 @@ functionButtons.forEach(button => {
             console.log('...');
         }
         else {
-            console.log('ignore for now but change ui');
+            console.log('changed operator!');
         }
         operator = button.getAttribute('data-button');
         prevButtonType = "functionKey";
-        console.log(operator);
+        console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
     });
 });
