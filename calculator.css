@@ -26,12 +26,17 @@ body {
 }
 
 .button {
-    background-color: black;
+    background-color: rgb(100, 11, 11);
     color: aliceblue;
     display: grid;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    border-radius: 5px;
+}
+
+.button.digit {
+    background-color: black;
 }
 
 .button:hover {
@@ -54,6 +59,11 @@ body {
 .function {
     font-family: sans-serif;
 }
+
+.function--selected {
+    border: 2px solid yellow;
+}
+
 .button-divide {
     grid-area: divide;
 }

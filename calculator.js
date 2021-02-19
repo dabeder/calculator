@@ -22,6 +22,12 @@ const updateDisplay = (string) => {
     calculatorDisplay.innerText = string;
 }
 
+const clearFunctionKeys = () => {
+    functionButtons.forEach(button => {
+        button.classList.remove('function--selected');
+    })
+}
+
 clear();
 updateDisplay("0");
 
@@ -82,11 +88,13 @@ const operate = (number1, operator, number2) => {
 
 clearButton.addEventListener('click', () => {
     clear();
+    clearFunctionKeys();
     updateDisplay("0");
 });
 
 equalsButton.addEventListener('click', () => {
     operate(input1, operator, input2);
+    clearFunctionKeys();
     prevButtonType = "equalsKey";
 });
 
@@ -105,7 +113,7 @@ digitButtons.forEach(button => {
         }
         else { // still fits on screen
             if (button.getAttribute('data-button')==="decimal") {
-                console.log('point'); //TODO
+                console.log('point'); //TODO. also standardize hover/active css
                 return;
             }
             input2 = parseInt(temp + button.innerText);
@@ -118,6 +126,7 @@ digitButtons.forEach(button => {
 
 functionButtons.forEach(button => {
     button.addEventListener('click', () => {
+        clearFunctionKeys();
         if (operator==="") operator = "add";
         if (prevButtonType === "numberKey") {
             operate(input1, operator, input2);
@@ -129,6 +138,7 @@ functionButtons.forEach(button => {
             console.log('changed operator!');
         }
         operator = button.getAttribute('data-button');
+        button.classList.add('function--selected');
         prevButtonType = "functionKey";
         console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
     });
