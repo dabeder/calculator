@@ -15,7 +15,7 @@ const clear = () => {
     input2 = 0;
     operator = '';
     prevButtonType = "";
-    console.log(input1);
+    console.log("Cleared");
 }
 
 const updateDisplay = (string) => {
@@ -104,20 +104,51 @@ const operate = (number1, operator, number2) => {
     }
 }
 
-clearButton.addEventListener('click', () => {
+const runClear = () => {
     clear();
     clearFunctionKeys();
     updateDisplay("0");
-});
+}
 
-equalsButton.addEventListener('click', () => {
+clearButton.addEventListener('click', runClear);
+
+const runEquals = () => {
     operate(input1, operator, input2);
     clearFunctionKeys();
     prevButtonType = "equalsKey";
-});
+}
 
-digitButtons.forEach(button => {
+equalsButton.addEventListener('click', runEquals);
+
+const figureKeyPress = (e) => {
+    // console.log(e.key);
+    var isNumber = Number.isInteger(parseInt(e.key));
+    var functionArray = ["+", "-", "*", "/"];
+    var isFunction = functionArray.includes(e.key);
+    if ((isNumber) || (e.key == ".")) {
+        console.log("digit");
+    }
+    else if (isFunction) {
+        console.log("function");
+    }
+    else if ((e.key == "Enter") || (e.key == "=")) {
+        runEquals();
+        console.log("equals");
+    }
+    else if ((e.key == "Clear") || (e.key == "Escape")) {
+        runClear();
+        console.log("clear");
+    }
+    else {
+        return;
+    }
+}
+
+document.addEventListener('keydown', figureKeyPress);
+
+digitButtons.forEach(button => { // TODO pull out function into named function
     button.addEventListener('click', () => {
+        console.log(button.getAttribute('data-button'));
         let temp = '';
         if (prevButtonType === "equalsKey") {
             clear();
