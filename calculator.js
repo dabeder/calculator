@@ -10,16 +10,23 @@ let input2 = 0;
 let operator = '';
 let prevButtonType = "";
 
-const clear = () => {
+const clearVariables = () => {
     input1 = 0;
     input2 = 0;
     operator = '';
     prevButtonType = "";
-    console.log("Cleared");
+    // console.log("Cleared");
 }
 
 const updateDisplay = (string) => {
     calculatorDisplay.innerText = string;
+}
+
+const flashDisplay = () => {
+    calculatorDisplay.classList.add('display--flash');
+    calculatorDisplay.addEventListener('transitionend', () => {
+        calculatorDisplay.classList.remove('display--flash');
+    });
 }
 
 const clearFunctionKeys = () => {
@@ -33,9 +40,6 @@ const findDecimal = (string) => {
     if (dotLocation == -1) return false;
     else return dotLocation;
 }
-
-clear();
-updateDisplay("0");
 
 const add = (number1, number2) => {
     return number1 + number2;
@@ -51,37 +55,51 @@ const divide = (number1, number2) => {
     else return number1/number2;
 }
 
+const runClear = () => {
+    clearVariables(); // clears variables
+    clearFunctionKeys(); // removes formatting from active function key
+    updateDisplay("0"); // zeroes display
+}
+
+const runEquals = () => {
+    operate(input1, operator, input2);
+    clearFunctionKeys();
+    prevButtonType = "equalsKey";
+}
+
 const operate = (number1, operator, number2) => {
-    console.log(`Calculate: ${number1}, ${number2}, ${operator}`);
+    // console.log(`Calculate: ${number1}, ${number2}, ${operator}`);
     number1 = parseFloat(number1);
     number2 = parseFloat(number2);
     let result;
     switch (operator) {
-        case "add":
+        case "+":
             result = add(number1, number2);
             break;
-        case "subtract":
+        case "-":
             result = subtract(number1, number2);
             break;
-        case "multiply":
+        case "*":
             result = multiply(number1, number2);
             break;
-        case "divide":
+        case "/":
             result = divide(number1, number2);
             break;
         default:
             result = add(number1, number2);
     }
     if ((result==="ERROR") || Number.isNaN(result)) {
-        clear();
         updateDisplay("ERROR");
+        flashDisplay();
+        clearVariables();
     }
     else {
         resultString = result.toString();
         if (resultString.length > 15) {
             if ((findDecimal(resultString)>16) || (!findDecimal(resultString))) { // more than 15 digits left of the decimal, so display as overflow
                 updateDisplay("OVERFLOW");
-                clear();
+                flashDisplay();
+                clearVariables();
             }
             else { // figure out how many to round down
                 let leftDigits = findDecimal(resultString);
@@ -104,95 +122,101 @@ const operate = (number1, operator, number2) => {
     }
 }
 
-const runClear = () => {
-    clear();
-    clearFunctionKeys();
-    updateDisplay("0");
+const enterDigit = (digit) => {
+    let temp = '';
+    if (prevButtonType === "equalsKey") {
+        clearVariables();
+    }
+    else if (prevButtonType === "numberKey") {
+        temp = calculatorDisplay.innerText.toString();
+    }
+    if (temp.length >= 15) {
+        // console.log('out of space');
+        flashDisplay();
+        return;
+    }
+    else { // still fits on screen
+        if (digit===".") {
+            if (findDecimal(temp)) return; // if a decimal point already exists, can't add another
+            if (temp == '') {
+                temp = '0';
+            }
+        }
+        input2 = temp + digit;
+        updateDisplay(input2);
+        prevButtonType = "numberKey";
+        // console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
+    }
 }
 
-clearButton.addEventListener('click', runClear);
-
-const runEquals = () => {
-    operate(input1, operator, input2);
+const enterFunction = (arithmeticFunction) => {
     clearFunctionKeys();
-    prevButtonType = "equalsKey";
+    if (operator==="") operator = "+";
+    if (prevButtonType === "numberKey") {
+        operate(input1, operator, input2);
+    }
+    else if (prevButtonType === "equalsKey") {
+        console.log("won't recalculate until a new 2nd term is entered");
+    }
+    else {
+        console.log('changed operator!');
+    }
+    operator = arithmeticFunction;
+    let selectedFunctionButton = document.querySelector('div[data-button = "' + operator + '"]');
+    selectedFunctionButton.classList.add('function--selected');
+    prevButtonType = "functionKey";
+    // console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
 }
-
-equalsButton.addEventListener('click', runEquals);
 
 const figureKeyPress = (e) => {
-    // console.log(e.key);
     var isNumber = Number.isInteger(parseInt(e.key));
     var functionArray = ["+", "-", "*", "/"];
     var isFunction = functionArray.includes(e.key);
     if ((isNumber) || (e.key == ".")) {
-        console.log("digit");
+        enterDigit(e.key);
+        // console.log("digit");
     }
     else if (isFunction) {
-        console.log("function");
+        enterFunction(e.key);
+        // console.log("function");
     }
     else if ((e.key == "Enter") || (e.key == "=")) {
         runEquals();
-        console.log("equals");
+        // console.log("equals");
     }
     else if ((e.key == "Clear") || (e.key == "Escape")) {
         runClear();
-        console.log("clear");
+        // console.log("clear");
     }
     else {
         return;
     }
 }
 
-document.addEventListener('keydown', figureKeyPress);
+document.addEventListener('keydown', figureKeyPress); // what to do when keys are pressed, points to the right helper function
 
-digitButtons.forEach(button => { // TODO pull out function into named function
+/* Adds event listeners to all buttons */
+
+equalsButton.addEventListener('click', runEquals);
+
+clearButton.addEventListener('click', runClear);
+
+
+digitButtons.forEach(button => {
     button.addEventListener('click', () => {
-        console.log(button.getAttribute('data-button'));
-        let temp = '';
-        if (prevButtonType === "equalsKey") {
-            clear();
-        }
-        else if (prevButtonType === "numberKey") {
-            temp = calculatorDisplay.innerText.toString();
-        }
-        if (temp.length >= 15) {
-            console.log('out of space');
-            // change css to flash display box or something
-            return;
-        }
-        else { // still fits on screen
-            if (button.getAttribute('data-button')==="decimal") {
-                if (findDecimal(temp)) return; // if a decimal point already exists, can't add another
-                console.log('point'); //TODO. also standardize hover/active css
-                if (temp == '') {
-                    temp = '0';
-                }
-            }
-            input2 = temp + button.innerText;
-            updateDisplay(input2);
-            prevButtonType = "numberKey";
-            console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
-        }
+        let digit = button.getAttribute('data-button');
+        enterDigit(digit);
     });
 });
 
 functionButtons.forEach(button => {
     button.addEventListener('click', () => {
-        clearFunctionKeys();
-        if (operator==="") operator = "add";
-        if (prevButtonType === "numberKey") {
-            operate(input1, operator, input2);
-        }
-        else if (prevButtonType === "equalsKey") {
-            console.log('...');
-        }
-        else {
-            console.log('changed operator!');
-        }
-        operator = button.getAttribute('data-button');
-        button.classList.add('function--selected');
-        prevButtonType = "functionKey";
-        console.log(`Inputs are ${input1} and ${input2}, operator is ${operator}`);
+        let arithmeticFunction = button.getAttribute('data-button');
+        enterFunction(arithmeticFunction);
     });
 });
+
+/* Initialize variables and display bar */
+
+clearVariables();
+updateDisplay("0");
