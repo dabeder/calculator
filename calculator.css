@@ -51,9 +51,15 @@ body {
     grid-column: 1 / -1;
     display: grid;
     border: 1px solid black;
+    border-radius: 5px;
     align-content: center;
     justify-content: end;
     padding-right: 10px;
+    transition:all 0.07s;
+}
+
+.display--flash {
+    background: rgb(194, 194, 133);
 }
 
 .function {
